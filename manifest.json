@@ -7,10 +7,17 @@
     "default_popup": "popup.html",
     "default_icon": "caribou.png"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "icons": {
     "16": "caribou.png",
     "32": "caribou.png",
     "48": "caribou.png",
     "128": "caribou.png"
-  }
+  },
+  "permissions": ["scripting", "tabs", "activeTab"],
+  "host_permissions": [
+    "https://*/*"
+  ]
 }
