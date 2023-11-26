@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Plan Picker",
+  "description": "Productivity tool",
+  "version": "1.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "caribou.png"
+  },
+  "icons": {
+    "16": "caribou.png",
+    "32": "caribou.png",
+    "48": "caribou.png",
+    "128": "caribou.png"
+  }
+}
