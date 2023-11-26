@@ -15,9 +15,24 @@ function handleTabUpdate(_, changeInfo, tabData) {
           target: {
             tabId: tabData.id,
           },
-          files: ["healthgov.js"]
+          func: injectHealthGovButtons
         })
       }
     }
   }
+}
+
+function injectHealthGovButtons() {
+  const planTitleClassName = `.pet-c-plan-title__issuer`
+
+  setTimeout(() => {
+    const planTitles = document.querySelectorAll(planTitleClassName)
+    planTitles.forEach(el => {
+      const button = document.createElement('button')
+      el.appendChild(button)
+      button.addEventListener('click', (event) => {
+        console.log('HIYA', event.target.parentNode.textContent)
+      })
+    })
+  }, 5000)
 }
