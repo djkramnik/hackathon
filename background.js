@@ -29,6 +29,8 @@ function injectHealthGovButtons() {
     const planTitles = document.querySelectorAll(planTitleClassName)
     planTitles.forEach(el => {
       const button = document.createElement('button')
+      button.innerHTML = 'Copy'
+      button.style = 'margin-left: 24px'
       el.appendChild(button)
       button.addEventListener('click', (event) => {
         console.log('HIYA', event.target.parentNode.textContent)
