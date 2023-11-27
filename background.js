@@ -132,6 +132,23 @@ function testOnCaribou(tabId) {
       const button = document.createElement('button')
       button.innerHTML = 'Paste'
       button.setAttribute('id', buttonId)
+      button.style=[
+        'margin-left:25px',
+        'margin-top:10px',
+        'border-radius:16px',
+        'outline:none',
+        'border:none',
+        'cursor:pointer',
+        'font-family:Eina04-Bold',
+        'font-size:15px',
+        'line-height:1.5',
+        'color:rgb(1,15,22)',
+        'background-color:rgb(221, 222, 223)',
+        'min-height:30px',
+        'padding:5px 15px',
+        'border-radius:16px',
+        'width:fit-content',
+      ].join(';')
       button.addEventListener('click', () => {
         console.log('one day you will be invoked as function arguments', window.demo)
         updatePlan(col, window.demo)
@@ -141,7 +158,7 @@ function testOnCaribou(tabId) {
     
     if (amIOnTheRightPage()) {
       // I'll do it again
-      setTimeout(opportunisticallyInjectButton, 10000)
+      setTimeout(opportunisticallyInjectButton, 1000)
     }
    }
 
