@@ -156,6 +156,7 @@ function testOnCaribou(tabId) {
       console.log('no data to paste')
       return
     }
+    console.log('pasting thine data', data)
     const updatePlanName = updateTextAreaRow.bind(null, 0)
     const updateBenefits = updateTextAreaRow.bind(null, 4)
     const updatePlanId = updateTextAreaRow.bind(null, 5)
