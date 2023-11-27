@@ -115,12 +115,16 @@ function testOnCaribou(tabId) {
     //console.log('TESTING THIS YO?????', result, typeof result)
 
     // need to stop doing this after navigation? or an if statement
-   ;(function opportunisticallyInjectButton() {
+   function opportunisticallyInjectButton() {
     ;[1,2,3,4].forEach((col) => {
+      
       const planNameInputsContainer = document.querySelector(`[data-testid="plan-option-table-{0,${col}}"]`)
       const buttonId = `paste-extension-data-${col}`
-      //console.log('hello', col)
-      if (!planNameInputsContainer || planNameInputsContainer.querySelector(`#${buttonId} `)) {
+      
+      if (amIOnTheRightPage() !== true) {
+        return
+      }
+      if (!planNameInputsContainer || planNameInputsContainer.querySelector(`#${buttonId}`)) {
         return
       }
       
@@ -129,16 +133,25 @@ function testOnCaribou(tabId) {
       button.innerHTML = 'Paste'
       button.setAttribute('id', buttonId)
       button.addEventListener('click', () => {
+       
+
         console.log('one day you will be invoked as function arguments')
         updatePlan(col)
       })
       planNameInputsContainer.prepend(button)
     })
     
-    // I'll do it again
-    setTimeout(opportunisticallyInjectButton, 10000)
-   })();
-    
+    if (amIOnTheRightPage()) {
+      // I'll do it again
+      setTimeout(opportunisticallyInjectButton, 10000)
+    }
+   }
+
+  opportunisticallyInjectButton()
+
+  function amIOnTheRightPage() {
+    return /\/report-types\/\w+\/plan-picker\?type=marketplace/.test(window.location.href)
+  }
   // this will have to return a promise, with the loading screen and what not
   async function updatePlan(colNum = 1) {
     const updatePlanName = updateTextAreaRow.bind(null, 0)
