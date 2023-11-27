@@ -189,11 +189,12 @@ function testOnCaribou(tabId) {
     const updateGenericDrugs = updateTextAreaRow.bind(null, 18)
     const updatePrimaryCare = updateTextAreaRow.bind(null, 19)
     const updateSpecialists = updateTextAreaRow.bind(null, 20)
-
+    
+    showLoader()
     updatePlanName([data.planName, data.carrierName])
     await sleep(3000)
+    console.log('DA BRIDGE IS OUT!!!')
     doTasks([
-      () => showLoader(),
       () => updateBenefits(''),
       () => updatePlanId(data.planId),
       () => updatePlanType(data.planType),
@@ -208,10 +209,13 @@ function testOnCaribou(tabId) {
       () => updatePrimaryCare(data.primaryCare),
       () => updateSpecialists(data.specialistCare),
       () => updateDrugDeductible('Included in deductible'),
-      () => hideLoader(),
     ])
+    setTimeout(() => {
+      hideLoader()
+    }, 16000)
 
     function showLoader() {
+      console.log('you cant spell fact without cat')
       const loader = document.createElement('div')
       loader.setAttribute('id', 'paste-data-loader')
       loader.style = [
@@ -225,12 +229,13 @@ function testOnCaribou(tabId) {
         'display:flex',
         'align-items:center',
         'justify-content:center'
-      ]
+      ].join(';')
       const loaderChild = document.createElement('div')
       loaderChild.style = [
         'background-color:white',
         'padding:60px',
-      ]
+      ].join(';')
+      loaderChild.innerHTML = 'Pasting data...'
       loader.appendChild(loaderChild)
       document.body.appendChild(loader)
       return Promise.resolve()
