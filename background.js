@@ -193,6 +193,7 @@ function testOnCaribou(tabId) {
     updatePlanName([data.planName, data.carrierName])
     await sleep(3000)
     doTasks([
+      () => showLoader(),
       () => updateBenefits(''),
       () => updatePlanId(data.planId),
       () => updatePlanType(data.planType),
@@ -206,8 +207,38 @@ function testOnCaribou(tabId) {
       () => updateGenericDrugs(data.genericDrugs),
       () => updatePrimaryCare(data.primaryCare),
       () => updateSpecialists(data.specialistCare),
-      () => updateDrugDeductible('Included in deductible')
+      () => updateDrugDeductible('Included in deductible'),
+      () => hideLoader(),
     ])
+
+    function showLoader() {
+      const loader = document.createElement('div')
+      loader.setAttribute('id', 'paste-data-loader')
+      loader.style = [
+        'position:fixed',
+        'background-color:rgba(0,0,0,0.3)',
+        'top:0',
+        'left:0',
+        'width:100vw',
+        'height:100vh',
+        'z-index:9999',
+        'display:flex',
+        'align-items:center',
+        'justify-content:center'
+      ]
+      const loaderChild = document.createElement('div')
+      loaderChild.style = [
+        'background-color:white',
+        'padding:60px',
+      ]
+      loader.appendChild(loaderChild)
+      document.body.appendChild(loader)
+      return Promise.resolve()
+    }
+
+    function hideLoader() {
+      document.getElementById('paste-data-loader')?.remove()
+    }
 
     function parseCost(cost) {
       if (!cost) {
