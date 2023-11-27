@@ -224,7 +224,7 @@ function testOnCaribou(tabId) {
         return ''
       }
       const [, numStars] = rating.match(/Quality Rating: (\d) of \d stars/) ?? []
-      return numStars ?? ''
+      return numStars ? `${numStars}.0` : ''
     }
     
     function updateMuiSelect(parentEl, value) {
