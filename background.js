@@ -106,10 +106,14 @@ function testOnCaribou(tabId) {
   const ungaBugaVersion = '1.5'
   console.log('unba bunga version ', ungaBugaVersion)
   chrome.storage.session.get('test', result => {
-    console.log('a lot of strain', result.test)
+    console.log('a lot of strain!!!', result.test)
+    window.demo = result.test
+    console.log('flute music', window.demo)
   })
   chrome.storage.session.onChanged.addListener((result) => {
-    console.log('of course im serious', result.test)
+    console.log('of course im serious???', result.test)
+    window.demo = result.test?.newValue
+    console.log('uh oh', window.demo)
   })
     // validate results here
     //console.log('TESTING THIS YO?????', result, typeof result)
@@ -133,8 +137,6 @@ function testOnCaribou(tabId) {
       button.innerHTML = 'Paste'
       button.setAttribute('id', buttonId)
       button.addEventListener('click', () => {
-       
-
         console.log('one day you will be invoked as function arguments')
         updatePlan(col)
       })
