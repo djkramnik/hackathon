@@ -43,13 +43,60 @@ function injectHealthGovButtons() {
 
   setTimeout(() => {
     const planTitles = document.querySelectorAll(planTitleClassName)
+    
     planTitles.forEach(el => {
       const button = document.createElement('button')
       button.innerHTML = 'Copy'
       button.style = 'margin-left: 24px'
       el.appendChild(button)
       button.addEventListener('click', (event) => {
-        chrome.storage.session.set({test: event.target.parentNode.textContent})
+        const searchResult = el?.parentNode?.parentNode ?? el
+        const carrierName = 
+          (searchResult.querySelector('.pet-c-plan-title__issuer')?.textContent ?? '')
+          .replace('Copy', '')
+        const planName = searchResult.querySelector('.pet-c-plan-title__name')?.textContent ?? ''
+        const info = searchResult.querySelector('.pet-c-plan-title__info')
+        const metalLevel = info?.querySelector('[aria-label="Metal Level"]').textContent ?? ''
+        const planType = info?.querySelector('[aria-label="Plan type"]').textContent ?? ''
+        const planId = info?.querySelector('[aria-label="Plan ID"]').textContent ?? ''
+        const rating = info?.querySelector('.ds-c-icon--star ')?.parentNode?.querySelector('.ds-u-visibility--screen-reader').textContent ?? ''
+        const premium = searchResult.querySelector(`[aria-labelledby="${planId}-premium-label"]`)?.textContent ?? ''
+        const [
+          ,
+          deductibleEl,
+          oopEl,
+        ] = searchResult.querySelectorAll('.pet-c-plan-cost-row .pet-c-plan__currency-container')
+        const benefits = Array.from(searchResult.querySelectorAll('.pet-c-plan-benefit-name'))
+        const primaryCare = benefits.find(el => el.textContent === 'Primary care')
+        const specialistCare = benefits.find(el => el.textContent === 'Specialist care')
+        const emergencyRoom = benefits.find(el => el.textContent === 'Emergency room')
+        const genericDrugs = benefits.find(el => el.textContent === 'Generic drugs')
+
+        const result = {
+          carrierName,
+          planName,
+          metalLevel,
+          planType,
+          planId,
+          rating,
+          premium,
+          deductible: deductibleEl?.textContent ?? '',
+          oop: oopEl?.textContent ?? '',
+          primaryCare: primaryCare
+            ? primaryCare.parentNode.querySelector('.pet-c-plan-benefit-cost')?.textContent ?? ''
+            : '',
+          specialistCare: specialistCare
+            ? specialistCare.parentNode.querySelector('.pet-c-plan-benefit-cost')?.textContent ?? ''
+            : '',
+          emergencyRoom: emergencyRoom
+            ? emergencyRoom.parentNode.querySelector('.pet-c-plan-benefit-cost')?.textContent ?? ''
+            : '',
+          genericDrugs: genericDrugs
+            ? genericDrugs.parentNode.querySelector('.pet-c-plan-benefit-cost')?.textContent ?? ''
+            : '',
+        }
+        console.log(JSON.stringify(result))
+        chrome.storage.session.set({test: result})
       })
     })
   }, 5000)
@@ -58,9 +105,16 @@ function injectHealthGovButtons() {
 function testOnCaribou(tabId) {
   const ungaBugaVersion = '1.5'
   console.log('unba bunga version ', ungaBugaVersion)
+  chrome.storage.session.get('test', result => {
+    console.log('a lot of strain', result.test)
+  })
+  chrome.storage.session.onChanged.addListener((result) => {
+    console.log('of course im serious', result.test)
+  })
     // validate results here
     //console.log('TESTING THIS YO?????', result, typeof result)
 
+    // need to stop doing this after navigation? or an if statement
    ;(function opportunisticallyInjectButton() {
     ;[1,2,3,4].forEach((col) => {
       const planNameInputsContainer = document.querySelector(`[data-testid="plan-option-table-{0,${col}}"]`)
@@ -87,7 +141,6 @@ function testOnCaribou(tabId) {
     
   // this will have to return a promise, with the loading screen and what not
   async function updatePlan(colNum = 1) {
-    console.log('IM UP IN THE CLUB! with a hellified gangsta mix', colNum)
     const updatePlanName = updateTextAreaRow.bind(null, 0)
     const updateBenefits = updateTextAreaRow.bind(null, 4)
     const updatePlanId = updateTextAreaRow.bind(null, 5)
