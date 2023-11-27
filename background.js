@@ -108,14 +108,10 @@ function testOnCaribou(tabId) {
   chrome.storage.session.get('test', result => {
     console.log('a lot of strain!!!', result.test)
     window.demo = result.test
-    console.log('flute music', window.demo)
-  })
-  chrome.storage.session.onChanged.addListener((result) => {
-    console.log('of course im serious???', result.test)
-    window.demo = result.test?.newValue
-    console.log('uh oh', window.demo)
-  })
-    // validate results here
+    console.log('flute music', window.demo, window.location.href)
+
+
+        // validate results here
     //console.log('TESTING THIS YO?????', result, typeof result)
 
     // need to stop doing this after navigation? or an if statement
@@ -137,8 +133,8 @@ function testOnCaribou(tabId) {
       button.innerHTML = 'Paste'
       button.setAttribute('id', buttonId)
       button.addEventListener('click', () => {
-        console.log('one day you will be invoked as function arguments')
-        updatePlan(col)
+        console.log('one day you will be invoked as function arguments', window.demo)
+        updatePlan(col, window.demo)
       })
       planNameInputsContainer.prepend(button)
     })
@@ -155,7 +151,11 @@ function testOnCaribou(tabId) {
     return /\/report-types\/\w+\/plan-picker\?type=marketplace/.test(window.location.href)
   }
   // this will have to return a promise, with the loading screen and what not
-  async function updatePlan(colNum = 1) {
+  async function updatePlan(colNum = 1, data) {
+    if (!data) {
+      console.log('no data to paste')
+      return
+    }
     const updatePlanName = updateTextAreaRow.bind(null, 0)
     const updateBenefits = updateTextAreaRow.bind(null, 4)
     const updatePlanId = updateTextAreaRow.bind(null, 5)
@@ -172,24 +172,42 @@ function testOnCaribou(tabId) {
     const updatePrimaryCare = updateTextAreaRow.bind(null, 19)
     const updateSpecialists = updateTextAreaRow.bind(null, 20)
 
-    updatePlanName(['as the spoke person', 'siren attack'])
+    updatePlanName([data.planName, data.carrierName])
     await sleep(3000)
     doTasks([
-      () => updateBenefits('https://seventheories.com'),
-      () => updatePlanId('S1234-2345-1234'),
-      () => updatePlanType('BAAAAARRRR'),
-      () => updateMetalTier('Metal Gear!'),
-      () => updateRating('3.0'),
-      () => updateMonthlyPrem('1,000.00'),
-      () => updatePtc('200.00'),
-      () => updateDeductible('5,000.00'),
-      () => updateOOPMax('160.00'),
-      () => updateEmergency('Feeding trees'),
-      () => updateGenericDrugs('Loopy enough'),
-      () => updatePrimaryCare('James Dean'),
-      () => updateSpecialists('A firm member'),
-      () => updateDrugDeductible('car crash')
+      () => updateBenefits(''),
+      () => updatePlanId(data.planId),
+      () => updatePlanType(data.planType),
+      () => updateMetalTier(data.metalLevel),
+      () => updateRating(parseRating(data.rating)),
+      () => updateMonthlyPrem(parseCost(data.premium)),
+      () => updatePtc('0'),
+      () => updateDeductible(parseCost(data.deductible)),
+      () => updateOOPMax(parseCost(data.oop)),
+      () => updateEmergency(data.emergencyRoom),
+      () => updateGenericDrugs(data.genericDrugs),
+      () => updatePrimaryCare(data.primaryCare),
+      () => updateSpecialists(data.specialistCare),
+      () => updateDrugDeductible('Included in deductible')
     ])
+
+    function parseCost(cost) {
+      if (!cost) {
+        return ''
+      }
+      return cost.replace('$', '')
+        .replace('/month', '')
+        .replace('Individual total', '')
+        .replace('Family total', '')
+    }
+
+    function parseRating(rating) {
+      if (!rating) {
+        return ''
+      }
+      const [, numStars] = rating.match(/Quality Rating: (\d) of \d stars/) ?? []
+      return numStars ?? ''
+    }
     
     function updateMuiSelect(parentEl, value) {
       if (!parentEl) {
@@ -342,6 +360,15 @@ function testOnCaribou(tabId) {
       })
     }
   }
+  })
+  chrome.storage.session.onChanged.addListener((result) => {
+    console.log('of course im serious???', result.test)
+    window.demo = result.test?.newValue
+    console.log('uh oh', window.demo)
+  })
+
+
+
 }
 
 
