@@ -56,313 +56,222 @@ function injectHealthGovButtons() {
 }
 
 function testOnCaribou() {
-  console.log('aasaaa')
+  console.log('unba bunga version')
   chrome.storage.session.get('test', function (result) {
-    console.log('TESTING THIS YO', result)
+    
     // validate results here
+    console.log('TESTING THIS YO', result, typeof result)
 
-    const updatePlanName = updateTextAreaRow(null, 0)
-    const updateBenefits = updateTextAreaRow.bind(null, 4)
-    const updatePlanId = updateTextArea(null, 5)
-    const updatePlanType = updateTextArea(null, 6)
-    const updateMetalTier = updateInput(null, 7)
-    const updateRating = updateMuiSelect(null, 8)
-    const updateMonthlyPrem = updateInput(null, 9)
-    const updatePtc = updateInput(null, 10)
-    const updateDeductible = updateInput(null, 11)
-    const updateDrugDeductible = updateTextArea(null, 12)
-    const updateOOPMax = updateInput(null, 14)
-    const updateEmergency = updateTextArea(null, 16)
-    const updateGenericDrugs = updateTextArea(null, 17)
-    const updatePrimaryCare = updateTextArea(null, 18)
-    const updateSpecialists = updateTextArea(null, 19)
+   (function opportunisticallyInjectButton() {
+    [1,2,3,4].forEach((col) => {
+      const planNameInputsContainer = document.querySelector(`[data-testid="plan-option-table-{0,${col}}"]`)
+      const buttonId = `paste-extension-data-${col}`
 
-    updatePlanName(['solar', 'link below'])
+      if (!!planNameInputsContainer?.querySelector(`#${buttonId}`)) {
+        return
+      }
+      
+      // put a button there with the specific id
+      const button = document.createElement('button')
+      button.innerHTML = 'Paste'
+      button.setAttribute('id', buttonId)
+      button.addEventListener('click', () => {
+        console.log('one day you will be invoked as function arguments', result)
+        updatePlan(col)
+      })
+      planNameInputsContainer.prepend(button)
+    })
+    
+    // I'll do it again
+    setTimeout(opportunisticallyInjectButton, 100)
+   })()
+    
   })
 
-  function updateMuiSelect(parentEl, value) {
-    if (!parentEl) {
-      return
+  // this will have to return a promise, with the loading screen and what not
+  async function updatePlan(colNum = 1) {
+    const updatePlanName = updateTextAreaRow.bind(null, 0)
+    const updateBenefits = updateTextAreaRow.bind(null, 4)
+    const updatePlanId = updateTextAreaRow.bind(null, 5)
+    const updatePlanType = updateTextAreaRow.bind(null, 6)
+    const updateMetalTier = updateInputRow.bind(null, 7)
+    const updateRating = updateSelectRow.bind(null, 8)
+    const updateMonthlyPrem = updateInputRow.bind(null, 9)
+    const updatePtc = updateInputRow.bind(null, 10)
+    const updateDeductible = updateInputRow.bind(null, 11)
+    const updateDrugDeductible = updateTextAreaRow.bind(null, 12)
+    const updateOOPMax = updateInputRow.bind(null, 14)
+    const updateEmergency = updateTextAreaRow.bind(null, 17)
+    const updateGenericDrugs = updateTextAreaRow.bind(null, 18)
+    const updatePrimaryCare = updateTextAreaRow.bind(null, 19)
+    const updateSpecialists = updateTextAreaRow.bind(null, 20)
+
+    updatePlanName(['as the spoke person', 'siren attack'])
+    await sleep(3000)
+    doTasks([
+      () => updateBenefits('https://youtube.ca'),
+      () => updatePlanId('S1234-2345-1234'),
+      () => updatePlanType('BAAAAARRRR'),
+      () => updateMetalTier('Metal Gear!'),
+      () => updateRating('3.0'),
+      () => updateMonthlyPrem('1,000.00'),
+      () => updatePtc('200.00'),
+      () => updateDeductible('5,000.00'),
+      () => updateOOPMax('160.00'),
+      () => updateEmergency('Feeding trees'),
+      () => updateGenericDrugs('Loopy enough'),
+      () => updatePrimaryCare('James Dean'),
+      () => updateSpecialists('A firm member'),
+      () => updateDrugDeductible('car crash')
+    ])
+    
+    function updateMuiSelect(parentEl, value) {
+      if (!parentEl) {
+        return
+      }
+
+      const listbox = parentEl.querySelector('[aria-haspopup="listbox"]')
+      const event = document.createEvent('MouseEvents')
+      event.initEvent('mousedown', true, true)
+      listbox.dispatchEvent(event)
+    
+      setTimeout(() => {
+        document.querySelector(`[role="presentation"] .MuiList-root [data-value="${value}"]`).click()
+      }, 1)
+    }
+    
+    function updateTextArea(parentEl, values) {
+      if (!parentEl) {
+        return
+      }
+      if (Array.isArray(values)) {
+        doTasks(
+          Array.from(parentEl.querySelectorAll('textarea'))   
+            .map((el, index) => {
+              return () => updateInputValue(el, values[index])
+            })
+        )
+        return
+      }
+      const textArea = parentEl.querySelector('textarea')
+      if (!textArea) {
+        return
+      }
+      updateInputValue(textArea, values)
+    }
+    
+    function updateInput(parentEl, value) {
+      if (!parentEl) {
+        return
+      }
+      const input = parentEl.querySelector('input')
+      if (!input) {
+        return
+      }
+      updateInputValue(input, value)
+    }
+    
+    function findLabel(value) {
+      return Array.from(document.querySelectorAll('[data-testid^="plan-option-table"] label'))
+        .find(el => el.textContent === value)
+    }
+    
+    // keep going up the dom calling a callback on each level that will return
+    // { keepGoing: boolean, data: any }
+    function recurseUpDom(el, callback) {
+      if (el === null) {
+        return null
+      }
+      const { keepGoing, data } = callback(el)
+      if (keepGoing === false) {
+        return data
+      }
+      return recurseUpDom(el?.parentNode ?? null, callback)
+    }
+    
+    function getRowNumForSection(sectionLabel) {
+      const label = findLabel(sectionLabel)
+      if (label === undefined) {
+        return null
+      }
+      return recurseUpDom(label, getRowNum)
+    }
+    
+    // call this where there is the plan-option-table id
+    function getRowNum(el) {
+      const dataTestId = el.getAttribute('data-testid')
+      if (dataTestId === null) {
+        return { keepGoing: true, data: null}
+      }
+      const [, rowNum] = dataTestId.match(/plan-option-table-{(\d+),\d+}/) ?? []
+      if (rowNum === undefined) {
+        return { keepGoing: true, data: null }
+      }
+      const parsedRow = Number(rowNum)
+    
+      return {
+        keepGoing: Number.isNaN(parsedRow),
+        data: parsedRow
+      }
     }
 
-    const listbox = parentEl.querySelector('[aria-haspopup="listbox"]')
-    const event = document.createEvent('MouseEvents')
-    event.initEvent('mousedown', true, true)
-    listbox.dispatchEvent(event)
-  
-    setTimeout(() => {
-      document.querySelector(`[role="presentation"] .MuiList-root [data-value="${value}"]`).click()
-    }, 1)
-  }
-  
-  function updateTextArea(parentEl, values) {
-    if (!parentEl) {
-      return
-    }
-    if (Array.isArray(values)) {
-      parentEl.querySelectorAll('textarea')?.forEach((el, index) => {
-        el.value = values[index] ?? ''
-      })
-      return
-    }
-    parentEl.querySelector('textarea')?.value = values
-  }
-  
-  function updateInput(parentEl, value) {
-    parentEl?.querySelector('input')?.value = value
-  }
-  
-  function findLabel(value) {
-    return Array.from(document.querySelectorAll('[data-testid^="plan-option-table"] label'))
-      .find(el => el.textContent === value)
-  }
-  
-  // keep going up the dom calling a callback on each level that will return
-  // { keepGoing: boolean, data: any }
-  function recurseUpDom(el, callback) {
-    if (el === null) {
-      return null
-    }
-    const { keepGoing, data } = callback(el)
-    if (keepGoing === false) {
-      return data
-    }
-    return recurseUpDom(el?.parentNode ?? null, callback)
-  }
-  
-  function getRowNumForSection(sectionLabel) {
-    const label = findLabel(sectionLabel)
-    if (label === undefined) {
-      return null
-    }
-    return recurseUpDom(label, getRowNum)
-  }
-  
-  // call this where there is the plan-option-table id
-  function getRowNum(el) {
-    const dataTestId = el.getAttribute('data-testid')
-    if (dataTestId === null) {
-      return { keepGoing: true, data: null}
-    }
-    const [, rowNum] = dataTestId.match(/plan-option-table-{(\d+),\d+}/) ?? []
-    if (rowNum === undefined) {
-      return { keepGoing: true, data: null }
-    }
-    const parsedRow = Number(rowNum)
-  
-    return {
-      keepGoing: Number.isNaN(parsedRow),
-      data: parsedRow
-    }
-  }
-
-  // values is an array!
-  function updateTextAreaRow(index, values) {
-    updateTextArea(
-      document.querySelector(`[data-testid="plan-option-table-{${index},1}"`),
-      values,
-    )
-  }
-
-  function updateSelectRow(index, value) {
-    updateMuiSelect(
-      document.querySelector(`[data-testid="plan-option-table-{${index},1}"`),
-      value,
-    )
-  }
-
-  function updateInputRow(index, value) {
-    updateInput(
-      document.querySelector(`[data-testid="plan-option-table-{${index},1}"`),
-      value,
-    )
-  }
-}
-
-async function updatePlan(colNum = 1) {
-  const updatePlanName = updateTextAreaRow.bind(null, 0)
-  const updateBenefits = updateTextAreaRow.bind(null, 4)
-  const updatePlanId = updateTextAreaRow.bind(null, 5)
-  const updatePlanType = updateTextAreaRow.bind(null, 6)
-  const updateMetalTier = updateInputRow.bind(null, 7)
-  const updateRating = updateSelectRow.bind(null, 8)
-  const updateMonthlyPrem = updateInputRow.bind(null, 9)
-  const updatePtc = updateInputRow.bind(null, 10)
-  const updateDeductible = updateInputRow.bind(null, 11)
-  const updateDrugDeductible = updateTextAreaRow.bind(null, 12)
-  const updateOOPMax = updateInputRow.bind(null, 14)
-  const updateEmergency = updateTextAreaRow.bind(null, 16)
-  const updateGenericDrugs = updateTextAreaRow.bind(null, 17)
-  const updatePrimaryCare = updateTextAreaRow.bind(null, 18)
-  const updateSpecialists = updateTextAreaRow.bind(null, 19)
-
-  updatePlanName(['as the spoke person', 'siren attack'])
-  await sleep()
-  doTasks([
-    () => updateBenefits('https://youtube.ca'),
-    () => updatePlanId('S1234-2345-1234'),
-    () => updatePlanType('BAAAAARRRR'),
-    () => updateMetalTier('Metal Gear!'),
-    () => updateRating('3.0'),
-    () => updateMonthlyPrem('1,000.00'),
-    () => updatePtc('200.00'),
-    () => updateDeductible('5,000.00'),
-    () => updateOOPMax('160.00'),
-    () => updateEmergency('Feeding trees'),
-    () => updateGenericDrugs('Loopy enough'),
-    () => updatePrimaryCare('James Dean'),
-    () => updateSpecialists('A firm member'),
-    () => updateDrugDeductible('car crash')
-  ])
-  
-  // updatePlanName(['the movie', 'seven'])
-  // updateRating('1.0')
-
-  function updateMuiSelect(parentEl, value) {
-    if (!parentEl) {
-      return
-    }
-
-    const listbox = parentEl.querySelector('[aria-haspopup="listbox"]')
-    const event = document.createEvent('MouseEvents')
-    event.initEvent('mousedown', true, true)
-    listbox.dispatchEvent(event)
-  
-    setTimeout(() => {
-      document.querySelector(`[role="presentation"] .MuiList-root [data-value="${value}"]`).click()
-    }, 1)
-  }
-  
-  function updateTextArea(parentEl, values) {
-    if (!parentEl) {
-      return
-    }
-    if (Array.isArray(values)) {
-      doTasks(
-        Array.from(parentEl.querySelectorAll('textarea'))   
-          .map((el, index) => {
-            return () => updateInputValue(el, values[index])
-          })
+    // values is an array!
+    function updateTextAreaRow(index, values) {
+      console.log('gustab', index, values)
+      updateTextArea(
+        document.querySelector(`[data-testid="plan-option-table-{${index},${colNum}}"`),
+        values,
       )
-      return
     }
-    const textArea = parentEl.querySelector('textarea')
-    if (!textArea) {
-      return
-    }
-    updateInputValue(textArea, values)
-  }
-  
-  function updateInput(parentEl, value) {
-    if (!parentEl) {
-      return
-    }
-    const input = parentEl.querySelector('input')
-    if (!input) {
-      return
-    }
-    updateInputValue(input, value)
-  }
-  
-  function findLabel(value) {
-    return Array.from(document.querySelectorAll('[data-testid^="plan-option-table"] label'))
-      .find(el => el.textContent === value)
-  }
-  
-  // keep going up the dom calling a callback on each level that will return
-  // { keepGoing: boolean, data: any }
-  function recurseUpDom(el, callback) {
-    if (el === null) {
-      return null
-    }
-    const { keepGoing, data } = callback(el)
-    if (keepGoing === false) {
-      return data
-    }
-    return recurseUpDom(el?.parentNode ?? null, callback)
-  }
-  
-  function getRowNumForSection(sectionLabel) {
-    const label = findLabel(sectionLabel)
-    if (label === undefined) {
-      return null
-    }
-    return recurseUpDom(label, getRowNum)
-  }
-  
-  // call this where there is the plan-option-table id
-  function getRowNum(el) {
-    const dataTestId = el.getAttribute('data-testid')
-    if (dataTestId === null) {
-      return { keepGoing: true, data: null}
-    }
-    const [, rowNum] = dataTestId.match(/plan-option-table-{(\d+),\d+}/) ?? []
-    if (rowNum === undefined) {
-      return { keepGoing: true, data: null }
-    }
-    const parsedRow = Number(rowNum)
-  
-    return {
-      keepGoing: Number.isNaN(parsedRow),
-      data: parsedRow
-    }
-  }
 
-  // values is an array!
-  function updateTextAreaRow(index, values) {
-    console.log('gustab', index, values)
-    updateTextArea(
-      document.querySelector(`[data-testid="plan-option-table-{${index},${colNum}}"`),
-      values,
-    )
-  }
-
-  function updateSelectRow(index, value) {
-    updateMuiSelect(
-      document.querySelector(`[data-testid="plan-option-table-{${index},${colNum}}"`),
-      value,
-    )
-  }
-
-  function updateInputRow(index, value) {
-    updateInput(
-      document.querySelector(`[data-testid="plan-option-table-{${index},${colNum}}"`),
-      value,
-    )
-  }
-//  https://stackoverflow.com/questions/16250464/trigger-change-event-when-the-input-value-changed-programmatically
-  function updateInputValue(inputEl, newValue) {
-    console.log('connective story', inputEl, newValue)
-    const valueSetter = Object.getOwnPropertyDescriptor(inputEl, 'value').set;
-    const prototype = Object.getPrototypeOf(inputEl);
-    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
-    if (valueSetter && valueSetter !== prototypeValueSetter) {
-        prototypeValueSetter.call(inputEl, newValue);
-    } else {
-        valueSetter.call(inputEl, newValue);
+    function updateSelectRow(index, value) {
+      updateMuiSelect(
+        document.querySelector(`[data-testid="plan-option-table-{${index},${colNum}}"`),
+        value,
+      )
     }
-    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-    inputEl.blur()
-  }
 
-  // given an array of tasks, we want to do each with a setTimeout in between
-  async function doTasks(tasks) {
-    if (tasks.length === 0) {
-      return
+    function updateInputRow(index, value) {
+      updateInput(
+        document.querySelector(`[data-testid="plan-option-table-{${index},${colNum}}"`),
+        value,
+      )
     }
-    await sleep()
-    setTimeout(() => {
-      (tasks[tasks.length - 1])()
-      doTasks(tasks.slice(0, -1))
-    }, 1)
-  }
+  //  https://stackoverflow.com/questions/16250464/trigger-change-event-when-the-input-value-changed-programmatically
+    function updateInputValue(inputEl, newValue) {
+      console.log('connective story', inputEl, newValue)
+      const valueSetter = Object.getOwnPropertyDescriptor(inputEl, 'value').set;
+      const prototype = Object.getPrototypeOf(inputEl);
+      const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+      if (valueSetter && valueSetter !== prototypeValueSetter) {
+          prototypeValueSetter.call(inputEl, newValue);
+      } else {
+          valueSetter.call(inputEl, newValue);
+      }
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.blur()
+    }
 
-  function sleep(timeout = 1000) {
-    return new Promise(resolve => {
-      setTimeout(resolve, timeout)
-    })
+    // given an array of tasks, we want to do each with a setTimeout in between
+    async function doTasks(tasks) {
+      if (tasks.length === 0) {
+        return
+      }
+      await sleep()
+      setTimeout(() => {
+        (tasks[tasks.length - 1])()
+        doTasks(tasks.slice(0, -1))
+      }, 1)
+    }
+
+    function sleep(timeout = 1000) {
+      return new Promise(resolve => {
+        setTimeout(resolve, timeout)
+      })
+    }
   }
 }
+
 
 
 
