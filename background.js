@@ -13,7 +13,6 @@ function handleTabUpdate(_, changeInfo, tabData) {
     return
   }
 
-  console.log('you had any questions', changeInfo.url)
   if (changeInfo.url.startsWith(healthGovResultsPage)) {
     chrome.scripting.executeScript({
       target: {
@@ -180,24 +179,44 @@ function testOnCaribou() {
   }
 }
 
-function updatePlan(colNum = 1) {
+async function updatePlan(colNum = 1) {
   const updatePlanName = updateTextAreaRow.bind(null, 0)
   const updateBenefits = updateTextAreaRow.bind(null, 4)
-  const updatePlanId = updateTextArea.bind(null, 5)
-  const updatePlanType = updateTextArea.bind(null, 6)
-  const updateMetalTier = updateInput.bind(null, 7)
-  const updateRating = updateMuiSelect.bind(null, 8)
-  const updateMonthlyPrem = updateInput.bind(null, 9)
-  const updatePtc = updateInput.bind(null, 10)
-  const updateDeductible = updateInput.bind(null, 11)
-  const updateDrugDeductible = updateTextArea.bind(null, 12)
-  const updateOOPMax = updateInput.bind(null, 14)
-  const updateEmergency = updateTextArea.bind(null, 16)
-  const updateGenericDrugs = updateTextArea.bind(null, 17)
-  const updatePrimaryCare = updateTextArea.bind(null, 18)
-  const updateSpecialists = updateTextArea.bind(null, 19)
+  const updatePlanId = updateTextAreaRow.bind(null, 5)
+  const updatePlanType = updateTextAreaRow.bind(null, 6)
+  const updateMetalTier = updateInputRow.bind(null, 7)
+  const updateRating = updateSelectRow.bind(null, 8)
+  const updateMonthlyPrem = updateInputRow.bind(null, 9)
+  const updatePtc = updateInputRow.bind(null, 10)
+  const updateDeductible = updateInputRow.bind(null, 11)
+  const updateDrugDeductible = updateTextAreaRow.bind(null, 12)
+  const updateOOPMax = updateInputRow.bind(null, 14)
+  const updateEmergency = updateTextAreaRow.bind(null, 16)
+  const updateGenericDrugs = updateTextAreaRow.bind(null, 17)
+  const updatePrimaryCare = updateTextAreaRow.bind(null, 18)
+  const updateSpecialists = updateTextAreaRow.bind(null, 19)
 
-  updatePlanName(['solar', 'link below'])
+  updatePlanName(['as the spoke person', 'siren attack'])
+  await sleep()
+  doTasks([
+    () => updateBenefits('https://youtube.ca'),
+    () => updatePlanId('S1234-2345-1234'),
+    () => updatePlanType('BAAAAARRRR'),
+    () => updateMetalTier('Metal Gear!'),
+    () => updateRating('3.0'),
+    () => updateMonthlyPrem('1,000.00'),
+    () => updatePtc('200.00'),
+    () => updateDeductible('5,000.00'),
+    () => updateOOPMax('160.00'),
+    () => updateEmergency('Feeding trees'),
+    () => updateGenericDrugs('Loopy enough'),
+    () => updatePrimaryCare('James Dean'),
+    () => updateSpecialists('A firm member'),
+    () => updateDrugDeductible('car crash')
+  ])
+  
+  // updatePlanName(['the movie', 'seven'])
+  // updateRating('1.0')
 
   function updateMuiSelect(parentEl, value) {
     if (!parentEl) {
@@ -219,16 +238,19 @@ function updatePlan(colNum = 1) {
       return
     }
     if (Array.isArray(values)) {
-      Array.from(parentEl.querySelectorAll('textarea')).forEach((el, index) => {
-        el.value = values[index] ?? ''
-      })
+      doTasks(
+        Array.from(parentEl.querySelectorAll('textarea'))   
+          .map((el, index) => {
+            return () => updateInputValue(el, values[index])
+          })
+      )
       return
     }
     const textArea = parentEl.querySelector('textarea')
     if (!textArea) {
       return
     }
-    textArea.value = values
+    updateInputValue(textArea, values)
   }
   
   function updateInput(parentEl, value) {
@@ -239,7 +261,7 @@ function updatePlan(colNum = 1) {
     if (!input) {
       return
     }
-    input.value = value
+    updateInputValue(input, value)
   }
   
   function findLabel(value) {
@@ -307,6 +329,38 @@ function updatePlan(colNum = 1) {
       document.querySelector(`[data-testid="plan-option-table-{${index},${colNum}}"`),
       value,
     )
+  }
+//  https://stackoverflow.com/questions/16250464/trigger-change-event-when-the-input-value-changed-programmatically
+  function updateInputValue(inputEl, newValue) {
+    console.log('connective story', inputEl, newValue)
+    const valueSetter = Object.getOwnPropertyDescriptor(inputEl, 'value').set;
+    const prototype = Object.getPrototypeOf(inputEl);
+    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+    if (valueSetter && valueSetter !== prototypeValueSetter) {
+        prototypeValueSetter.call(inputEl, newValue);
+    } else {
+        valueSetter.call(inputEl, newValue);
+    }
+    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    inputEl.blur()
+  }
+
+  // given an array of tasks, we want to do each with a setTimeout in between
+  async function doTasks(tasks) {
+    if (tasks.length === 0) {
+      return
+    }
+    await sleep()
+    setTimeout(() => {
+      (tasks[tasks.length - 1])()
+      doTasks(tasks.slice(0, -1))
+    }, 1)
+  }
+
+  function sleep(timeout = 1000) {
+    return new Promise(resolve => {
+      setTimeout(resolve, timeout)
+    })
   }
 }
 
