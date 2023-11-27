@@ -16,7 +16,7 @@
     "48": "caribou.png",
     "128": "caribou.png"
   },
-  "permissions": ["scripting", "tabs", "activeTab"],
+  "permissions": ["scripting", "tabs", "activeTab", "storage"],
   "host_permissions": [
     "https://*/*"
   ]
