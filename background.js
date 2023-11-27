@@ -62,3 +62,69 @@ function testOnCaribou() {
     console.log('TESTING THIS YO', result)
   })
 }
+
+function updateMuiSelect(parentEl, value) {
+  const listbox = parentEl.querySelector('[aria-haspopup="listbox"]')
+  const event = document.createEvent('MouseEvents')
+  event.initEvent('mousedown', true, true)
+  listbox.dispatchEvent(event)
+
+  setTimeout(() => {
+    document.querySelector(`[role="presentation"] .MuiList-root [data-value="${value}"]`).click()
+  }, 1)
+}
+
+function updateTextArea(parentEl, values) {
+  if (Array.isArray(values)) {
+    parentEl.querySelectorAll('textarea').forEach((el, index) => {
+      el.value = values[index] ?? ''
+    })
+  }
+}
+
+function findLabel(value) {
+  return Array.from(document.querySelectorAll('[data-testid^="plan-option-table"] label'))
+    .find(el => el.textContent === value)
+}
+
+// keep going up the dom calling a callback on each level that will return
+// { keepGoing: 'true' | 'false', data: any }
+function recurseUpDom(el, callback) {
+  if (el === null) {
+    return null
+  }
+  const { keepGoing, data } = callback(el)
+  if (keepGoing === false) {
+    return data
+  }
+  return recurseUpDom(el?.parentNode ?? null, callback)
+}
+
+function getRowNumForSection(sectionLabel) {
+  const label = findLabel(sectionLabel)
+  if (label === undefined) {
+    return null
+  }
+  return recurseUpDom(label, getRowNum)
+}
+
+// call this where there is the plan-option-table id
+function getRowNum(el) {
+  const dataTestId = el.getAttribute('data-testid')
+  if (dataTestId === null) {
+    return { keepGoing: true, data: null}
+  }
+  const [, rowNum] = dataTestId.match(/plan-option-table-{(\d+),\d+}/) ?? []
+  if (rowNum === undefined) {
+    return { keepGoing: true, data: null }
+  }
+  const parsedRow = Number(rowNum)
+
+  return {
+    keepGoing: Number.isNaN(parsedRow),
+    data: parsedRow
+  }
+}
+
+
+
