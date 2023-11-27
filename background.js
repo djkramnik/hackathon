@@ -55,19 +55,18 @@ function injectHealthGovButtons() {
   }, 5000)
 }
 
-function testOnCaribou() {
-  console.log('unba bunga version')
-  chrome.storage.session.get('test', function (result) {
-    
+function testOnCaribou(tabId) {
+  const ungaBugaVersion = '1.5'
+  console.log('unba bunga version ', ungaBugaVersion)
     // validate results here
-    console.log('TESTING THIS YO', result, typeof result)
+    //console.log('TESTING THIS YO?????', result, typeof result)
 
-   (function opportunisticallyInjectButton() {
-    [1,2,3,4].forEach((col) => {
+   ;(function opportunisticallyInjectButton() {
+    ;[1,2,3,4].forEach((col) => {
       const planNameInputsContainer = document.querySelector(`[data-testid="plan-option-table-{0,${col}}"]`)
       const buttonId = `paste-extension-data-${col}`
-
-      if (!!planNameInputsContainer?.querySelector(`#${buttonId}`)) {
+      //console.log('hello', col)
+      if (!planNameInputsContainer || planNameInputsContainer.querySelector(`#${buttonId} `)) {
         return
       }
       
@@ -76,20 +75,19 @@ function testOnCaribou() {
       button.innerHTML = 'Paste'
       button.setAttribute('id', buttonId)
       button.addEventListener('click', () => {
-        console.log('one day you will be invoked as function arguments', result)
+        console.log('one day you will be invoked as function arguments')
         updatePlan(col)
       })
       planNameInputsContainer.prepend(button)
     })
     
     // I'll do it again
-    setTimeout(opportunisticallyInjectButton, 100)
-   })()
+    setTimeout(opportunisticallyInjectButton, 10000)
+   })();
     
-  })
-
   // this will have to return a promise, with the loading screen and what not
   async function updatePlan(colNum = 1) {
+    console.log('IM UP IN THE CLUB! with a hellified gangsta mix', colNum)
     const updatePlanName = updateTextAreaRow.bind(null, 0)
     const updateBenefits = updateTextAreaRow.bind(null, 4)
     const updatePlanId = updateTextAreaRow.bind(null, 5)
@@ -109,7 +107,7 @@ function testOnCaribou() {
     updatePlanName(['as the spoke person', 'siren attack'])
     await sleep(3000)
     doTasks([
-      () => updateBenefits('https://youtube.ca'),
+      () => updateBenefits('https://seventheories.com'),
       () => updatePlanId('S1234-2345-1234'),
       () => updatePlanType('BAAAAARRRR'),
       () => updateMetalTier('Metal Gear!'),
@@ -217,7 +215,7 @@ function testOnCaribou() {
 
     // values is an array!
     function updateTextAreaRow(index, values) {
-      console.log('gustab', index, values)
+      //console.log('gustab', index, values)
       updateTextArea(
         document.querySelector(`[data-testid="plan-option-table-{${index},${colNum}}"`),
         values,
@@ -239,17 +237,23 @@ function testOnCaribou() {
     }
   //  https://stackoverflow.com/questions/16250464/trigger-change-event-when-the-input-value-changed-programmatically
     function updateInputValue(inputEl, newValue) {
-      console.log('connective story', inputEl, newValue)
-      const valueSetter = Object.getOwnPropertyDescriptor(inputEl, 'value').set;
+      console.log('before', inputEl, newValue)
       const prototype = Object.getPrototypeOf(inputEl);
+      // console.log('after')
+      // const valueSetter = Object.getOwnPropertyDescriptor(inputEl, 'value').set;
+
+      console.log('before 2!')
       const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
-      if (valueSetter && valueSetter !== prototypeValueSetter) {
-          prototypeValueSetter.call(inputEl, newValue);
-      } else {
-          valueSetter.call(inputEl, newValue);
-      }
+      console.log('after 2!')
+      // if (valueSetter && valueSetter !== prototypeValueSetter) {
+      //     prototypeValueSetter.call(inputEl, newValue);
+      // } else {
+      //     valueSetter.call(inputEl, newValue);
+      // }
+      prototypeValueSetter.call(inputEl, newValue);
       inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       inputEl.blur()
+      console.log('fini')
     }
 
     // given an array of tasks, we want to do each with a setTimeout in between
